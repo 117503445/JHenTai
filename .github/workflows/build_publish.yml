@@ -8,6 +8,9 @@ on:
     tags:
       - v*
 
+env:
+  RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('nightly-{0}', github.sha) }}
+
 # If previous workflow is still running, we push again, we will cancel the previous workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -226,7 +229,6 @@ jobs:
           path: ${{ matrix.artifact_path }}
           if-no-files-found: error
   Publish:
-    if: startsWith(github.ref, 'refs/tags/')
     name: Publish
     needs: Build
     runs-on: ubuntu-latest
@@ -245,12 +247,14 @@ jobs:
       - name: Upload to release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}
+          tag: ${{ env.RELEASE_TAG }}
+          name: ${{ github.ref_type == 'tag' && github.ref_name || format('Nightly Build {0}', github.sha) }}
           allowUpdates: true
-          bodyFile: changelog/${{ github.ref_name }}.md
+          bodyFile: ${{ github.ref_type == 'tag' && format('changelog/{0}.md', github.ref_name) || '' }}
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
+          prerelease: ${{ github.ref_type != 'tag' }}
 
       # Get IPA file size
       - name: Get IPA file size
@@ -264,18 +268,27 @@ jobs:
         id: get_changelog
         run: |
           # Read changelog and preserve newlines for JSON
-          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
+          if [ "${{ github.ref_type }}" = "tag" ] && [ -f "changelog/${{ github.ref_name }}.md" ]; then
+            CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
+          else
+            CHANGELOG=$(echo "Nightly build from commit ${{ github.sha }}" | jq -Rs .)
+          fi
           echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
 
-      # Extract build version from tag
+      # Extract build version from tag or use commit sha for nightly
       - name: Get build version
         id: get_build_version
         run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          else
+            BUILD_VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+          fi
           echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
 
-      # Update AltSource.json
+      # Update AltSource.json (only for tagged releases)
       - name: Update AltSource.json
+        if: github.ref_type == 'tag'
         run: |
           FULL_VERSION="${{ needs.Build.outputs.version }}"
           # Remove build number part (content after +)
@@ -290,7 +303,7 @@ jobs:
              --arg build "${{ steps.get_build_version.outputs.build_version }}" \
              --arg date "$DATE" \
              --arg desc "$CHANGELOG" \
-             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
+             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/JHenTai_${FULL_VERSION}.ipa" \
              --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
              '.apps[0].versions[0] = {
                 "version": $version,
@@ -302,8 +315,9 @@ jobs:
               }' altsource/AltSource.json > altsource/AltSource.json.tmp
           mv altsource/AltSource.json.tmp altsource/AltSource.json
 
-      # Commit and push updated AltSource.json
+      # Commit and push updated AltSource.json (only for tagged releases)
       - name: Commit changes
+        if: github.ref_type == 'tag'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
