@@ -15,6 +15,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_mixin.dart';
@@ -180,7 +181,12 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     children: [cover, _buildSelectedIcon()],
                   );
                 } else {
-                  return cover;
+                  return Stack(
+                    children: [
+                      cover,
+                      _buildReadProgressOverlay(context, archive),
+                    ],
+                  );
                 }
               }
 
@@ -214,6 +220,48 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       onLongPress: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(archive, context),
       onSecondTap: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(archive, context),
       onTertiaryTap: inEditMode ? null : () => logic.handleTapTitle(archive),
+    );
+  }
+
+  Widget _buildReadProgressOverlay(BuildContext context, ArchiveDownloadedData archive) {
+    return GetBuilder<ReadProgressService>(
+      id: '${ReadProgressService.readProgressUpdateId}::${archive.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(archive.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            // Don't show if no progress
+            if (readIndex == 0) {
+              return const SizedBox.shrink();
+            }
+
+            return Positioned(
+              bottom: 4,
+              right: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '${readIndex + 1}/${archive.pageCount}',
+                  style: const TextStyle(
+                    fontSize: UIConfig.downloadPageGridViewInfoTextSize,
+                    color: UIConfig.downloadPageGridTextColor,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

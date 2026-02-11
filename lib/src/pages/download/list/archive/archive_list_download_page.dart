@@ -13,6 +13,7 @@ import 'package:jhentai/src/widget/grouped_list.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart' as srs;
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/performance_setting.dart';
@@ -478,6 +479,8 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     ),
                   ),
                 const Expanded(child: SizedBox()),
+                if (archiveDownloadInfo.archiveStatus == ArchiveStatus.completed)
+                  _buildReadProgress(context, archive),
                 if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code)
                   GetBuilder<ArchiveDownloadService>(
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
@@ -486,7 +489,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                       style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                     ),
                   ),
-                if (archiveDownloadInfo.archiveStatus != ArchiveStatus.downloading)
+                if (archiveDownloadInfo.archiveStatus != ArchiveStatus.downloading && archiveDownloadInfo.archiveStatus != ArchiveStatus.completed)
                   Text(
                     archiveDownloadInfo.archiveStatus.name.tr,
                     style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context), height: 1),
@@ -507,6 +510,34 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 ),
               ).marginOnly(top: 6),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReadProgress(BuildContext context, ArchiveDownloadedData archive) {
+    return GetBuilder<ReadProgressService>(
+      id: '${ReadProgressService.readProgressUpdateId}::${archive.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(archive.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            // Don't show if no progress
+            if (readIndex == 0) {
+              return const SizedBox.shrink();
+            }
+
+            return Text(
+              '${readIndex + 1}/${archive.pageCount}',
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+            ).marginOnly(right: 8);
+          },
         );
       },
     );

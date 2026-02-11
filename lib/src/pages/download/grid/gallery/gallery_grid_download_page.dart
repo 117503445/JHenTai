@@ -20,6 +20,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../config/ui_config.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../download_base_page.dart';
 import '../mixin/grid_download_page_mixin.dart';
 import 'gallery_grid_download_page_logic.dart';
@@ -188,12 +189,18 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
           builder: (_) {
             if (logic.downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+              Widget cover = _buildCover(gallery);
               if (state.selectedGids.contains(gallery.gid)) {
                 return Stack(
-                  children: [_buildCover(gallery), _buildSelectedIcon()],
+                  children: [cover, _buildSelectedIcon()],
                 );
               } else {
-                return _buildCover(gallery);
+                return Stack(
+                  children: [
+                    cover,
+                    _buildReadProgressOverlay(context, gallery),
+                  ],
+                );
               }
             }
 
@@ -229,6 +236,48 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       onLongPress: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
       onSecondTap: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
       onTertiaryTap: inEditMode ? null : () => logic.handleTapTitle(gallery),
+    );
+  }
+
+  Widget _buildReadProgressOverlay(BuildContext context, GalleryDownloadedData gallery) {
+    return GetBuilder<ReadProgressService>(
+      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(gallery.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            // Don't show if no progress
+            if (readIndex == 0) {
+              return const SizedBox.shrink();
+            }
+
+            return Positioned(
+              bottom: 4,
+              right: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '${readIndex + 1}/${gallery.pageCount}',
+                  style: const TextStyle(
+                    fontSize: UIConfig.downloadPageGridViewInfoTextSize,
+                    color: UIConfig.downloadPageGridTextColor,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

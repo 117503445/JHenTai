@@ -15,6 +15,7 @@ import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/performance_setting.dart';
 import '../../../../utils/date_util.dart';
@@ -480,6 +481,8 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     ),
                   ),
                 const Expanded(child: SizedBox()),
+                if (downloadProgress.downloadStatus == DownloadStatus.downloaded)
+                  _buildReadProgress(context, gallery),
                 Text(
                   '${downloadProgress.curCount}/${downloadProgress.totalCount}',
                   style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
@@ -495,6 +498,34 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 ),
               ).marginOnly(top: 4),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReadProgress(BuildContext context, GalleryDownloadedData gallery) {
+    return GetBuilder<ReadProgressService>(
+      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(gallery.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            // Don't show if no progress
+            if (readIndex == 0) {
+              return const SizedBox.shrink();
+            }
+
+            return Text(
+              '${readIndex + 1}/${gallery.pageCount}',
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+            ).marginOnly(right: 8);
+          },
         );
       },
     );
