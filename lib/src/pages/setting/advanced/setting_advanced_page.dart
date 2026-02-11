@@ -193,7 +193,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         try {
           await const AndroidIntent(
             action: 'android.settings.APP_OPEN_BY_DEFAULT_SETTINGS',
-            data: 'package:top.jtmonster.jhentai',
+            data: 'package:top.jtmonster.jjhentai',
           ).launch();
         } on Exception catch (e) {
           log.error(e);

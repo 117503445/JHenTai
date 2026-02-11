@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'top.jtmonster.jhentai'
+    namespace 'top.jtmonster.jjhentai'
     compileSdkVersion 35
 
     compileOptions {
@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "top.jtmonster.jhentai"
+        applicationId "top.jtmonster.jjhentai"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
