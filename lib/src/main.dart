@@ -112,6 +112,11 @@ void main(List<String> args) async {
     statusBarColor: Colors.transparent,
   ));
 
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     await bean.initBean();
