@@ -1,4 +1,4 @@
-package top.jtmonster.jhentai
+package top.jtmonster.jjhentai
 
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +22,7 @@ class MainActivity : FlutterFragmentActivity() {
 
         volumeMethodChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "top.jtmonster.jhentai.volume.event.intercept"
+            "top.jtmonster.jjhentai.volume.event.intercept"
         )
 
         volumeMethodChannel.setMethodCallHandler { call, result ->
