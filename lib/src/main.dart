@@ -112,6 +112,8 @@ void main(List<String> args) async {
     statusBarColor: Colors.transparent,
   ));
 
+  // Lock to portrait orientation - content always arranged vertically
+  // resizeableActivity=true in AndroidManifest ensures fullscreen on tablets
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
