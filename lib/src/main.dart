@@ -112,11 +112,11 @@ void main(List<String> args) async {
     statusBarColor: Colors.transparent,
   ));
 
-  // Lock to portrait orientation - content always arranged vertically
+  // Lock to landscape orientation - content always arranged horizontally
   // resizeableActivity=true in AndroidManifest ensures fullscreen on tablets
   SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
