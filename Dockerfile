@@ -60,6 +60,18 @@ RUN yes | sdkmanager --licenses \
 # 创建工作目录
 WORKDIR /workspace
 
+# 复制项目文件
+COPY . /workspace/project/JHenTai
+
+# 复制构建脚本到 PATH
+COPY build-in-docker.sh /usr/local/bin/build-in-docker.sh
+RUN chmod +x /usr/local/bin/build-in-docker.sh
+
+# 预缓存 Flutter 依赖（需要网络）
+RUN git config --global core.longpaths true \
+    && cd /workspace/project/JHenTai \
+    && flutter pub get
+
 # 设置 git 配置（Flutter 需要）
 RUN git config --global --add safe.directory /opt/flutter \
     && git config --global core.longpaths true
