@@ -1,0 +1,19 @@
+# 忽略不需要复制到 Docker 镜像中的文件
+.git
+.gitignore
+README*
+*.md
+changelog/
+screenshot/
+build/
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+coverage/
+test/
+integration_test/
