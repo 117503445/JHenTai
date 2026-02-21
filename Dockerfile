@@ -2,6 +2,9 @@
 # 基于 Ubuntu 22.04
 FROM ubuntu:22.04
 
+ENV http_proxy=http://192.168.100.1:1080
+ENV https_proxy=http://192.168.100.1:1080
+
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLUTTER_VERSION=3.24.4
