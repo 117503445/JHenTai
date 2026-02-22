@@ -2,6 +2,7 @@
 
 set -e
 
+docker build -t builder .
 docker run -v $(pwd):/workspace --network none builder build-in-docker.sh
 # /workspace/project/JHenTai/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
