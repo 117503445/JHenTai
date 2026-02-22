@@ -5,13 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -391,6 +395,41 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   void handleLongPressCard(BuildContext context, Gallery gallery) async {}
 
   void handleSecondaryTapCard(BuildContext context, Gallery gallery) async {}
+
+  /// Quick download gallery to default group without original image
+  void handleQuickDownload(Gallery gallery) {
+    if (galleryDownloadService.containGallery(gallery.gid)) {
+      toast('${'alreadyInDownloadList'.tr}: ${gallery.gid}', isCenter: false);
+      return;
+    }
+
+    if (gallery.pageCount == null) {
+      toast('pageCountError'.tr, isCenter: false);
+      return;
+    }
+
+    GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+      gid: gallery.gid,
+      token: gallery.token,
+      title: gallery.title,
+      category: gallery.category,
+      pageCount: gallery.pageCount!,
+      galleryUrl: gallery.galleryUrl.url,
+      uploader: gallery.uploader,
+      publishTime: gallery.publishTime,
+      downloadStatusIndex: DownloadStatus.downloading.index,
+      downloadOriginalImage: false,  // 不下载原图
+      sortOrder: 0,
+      groupName: downloadSetting.defaultGalleryGroup.value ?? 'default',  // 默认分组
+      insertTime: DateTime.now().toString(),
+      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      tags: tagMap2TagString(gallery.tags),
+      tagRefreshTime: DateTime.now().toString(),
+    );
+
+    galleryDownloadService.downloadGallery(galleryDownloadedData);
+    toast('${'beginToDownload'.tr}: ${gallery.gid}', isCenter: false);
+  }
 
   Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) async {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');

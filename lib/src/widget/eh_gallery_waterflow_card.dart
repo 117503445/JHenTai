@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../config/ui_config.dart';
@@ -26,6 +27,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   final CardCallback handleTapCard;
   final CardCallback? handleLongPressCard;
   final CardCallback? handleSecondaryTapCard;
+  final CardCallback? handleTapDownload;
 
   const EHGalleryWaterFlowCard({
     Key? key,
@@ -35,6 +37,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     required this.handleTapCard,
     this.handleLongPressCard,
     this.handleSecondaryTapCard,
+    this.handleTapDownload,
   }) : super(key: key);
 
   @override
@@ -100,6 +103,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
+                if (handleTapDownload != null) _buildQuickDownloadButton(context).marginOnly(right: 2),
                 if (downloaded) _buildDownloadIcon().marginOnly(right: 2),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 2),
                 if (gallery.pageCount != null) _buildPageCount(),
@@ -124,6 +128,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
+                if (handleTapDownload != null) _buildQuickDownloadButton(context),
                 if (downloaded) _buildDownloadIcon(),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
                 _buildCategory().marginOnly(left: 4, right: 4),
@@ -186,6 +191,23 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   }
 
   Widget _buildDownloadIcon() => const Icon(Icons.download, size: 10);
+
+  Widget _buildQuickDownloadButton(BuildContext context) {
+    return GetBuilder<GalleryDownloadService>(
+      id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
+      builder: (_) {
+        bool isDownloading = galleryDownloadService.containGallery(gallery.gid);
+        if (isDownloading || downloaded) {
+          return const SizedBox.shrink();
+        }
+        return GestureDetector(
+          onTap: () => handleTapDownload!(gallery),
+          behavior: HitTestBehavior.opaque,
+          child: const Icon(Icons.download_outlined, size: 12),
+        );
+      },
+    );
+  }
 
   Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 10, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
 
