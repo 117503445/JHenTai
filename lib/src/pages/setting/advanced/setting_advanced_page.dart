@@ -75,6 +75,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildInNoImageMode(),
             _buildImportData(context),
             _buildExportData(context),
+            _buildOrientationDebug(),
           ],
         ).withListTileTheme(context),
       ),
@@ -256,6 +257,14 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         ],
       ),
       onTap: () => _exportData(context),
+    );
+  }
+
+  Widget _buildOrientationDebug() {
+    return ListTile(
+      title: const Text('屏幕方向调试'),
+      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      onTap: () => toRoute(Routes.orientationDebug),
     );
   }
 
