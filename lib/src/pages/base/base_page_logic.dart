@@ -10,8 +10,11 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -391,6 +394,37 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   void handleLongPressCard(BuildContext context, Gallery gallery, {Offset? position}) async {}
 
   void handleSecondaryTapCard(BuildContext context, Gallery gallery, {Offset? position}) async {}
+
+  /// 将 [gallery] 加入默认下载分组，保持快捷下载不获取原图。
+  void handleQuickDownload(Gallery gallery) {
+    if (galleryDownloadService.containGallery(gallery.gid)) {
+      toast('${'alreadyInDownloadList'.tr}: ${gallery.gid}', isCenter: false);
+      return;
+    }
+
+    if (gallery.pageCount == null) {
+      toast('pageCountError'.tr, isCenter: false);
+      return;
+    }
+
+    final request = GalleryDownloadRequest(
+      gid: gallery.gid,
+      token: gallery.token,
+      title: gallery.title,
+      category: gallery.category,
+      pageCount: gallery.pageCount!,
+      galleryUrl: gallery.galleryUrl.url,
+      uploader: gallery.uploader,
+      publishTime: gallery.publishTime,
+      downloadOriginalImage: false,
+      group: downloadSetting.defaultGalleryGroup.value ?? 'default',
+      tags: tagMap2TagString(gallery.tags),
+      tagRefreshTime: DateTime.now().toString(),
+    );
+
+    galleryDownloadService.downloadGallery(request);
+    toast('${'beginToDownload'.tr}: ${gallery.gid}', isCenter: false);
+  }
 
   Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) async {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');

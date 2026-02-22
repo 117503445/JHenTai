@@ -502,7 +502,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Widget _buildReadProgress(BuildContext context, GalleryDownloadedData gallery) {
+  Widget _buildReadProgress(BuildContext context, GalleryDownloadInfo gallery) {
     return GetBuilder<ReadProgressService>(
       id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
       builder: (_) {

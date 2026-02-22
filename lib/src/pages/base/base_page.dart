@@ -172,6 +172,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
         handleTapCard: logic.handleTapGalleryCard,
         handleLongPressCard: (gallery, position) => logic.handleLongPressCard(context, gallery, position: position),
         handleSecondaryTapCard: (gallery, position) => logic.handleSecondaryTapCard(context, gallery, position: position),
+        handleTapDownload: logic.handleQuickDownload,
         handleLoadMore: logic.loadMore,
       ),
     );

@@ -11,6 +11,7 @@ import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/locale_consts.dart';
@@ -30,6 +31,7 @@ class EHGalleryListCard extends StatelessWidget {
   final CardCallback handleTapCard;
   final CardContextMenuCallback? handleLongPressCard;
   final CardContextMenuCallback? handleSecondaryTapCard;
+  final CardCallback? handleTapDownload;
   final bool withTags;
 
   const EHGalleryListCard({
@@ -41,6 +43,7 @@ class EHGalleryListCard extends StatelessWidget {
     this.withTags = true,
     this.handleLongPressCard,
     this.handleSecondaryTapCard,
+    this.handleTapDownload,
   }) : super(key: key);
 
   @override
@@ -203,6 +206,7 @@ class EHGalleryListCard extends StatelessWidget {
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
+            if (handleTapDownload != null) _buildQuickDownloadButton(context).marginOnly(right: 8),
             if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 8),
             if (downloaded) _buildDownloadIcon(context).marginOnly(right: 4),
             if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
@@ -219,6 +223,27 @@ class EHGalleryListCard extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildQuickDownloadButton(BuildContext context) {
+    return GetBuilder<GalleryDownloadService>(
+      id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
+      builder: (_) {
+        bool isDownloading = galleryDownloadService.containGallery(gallery.gid);
+        if (isDownloading || downloaded) {
+          return const SizedBox.shrink();
+        }
+        return GestureDetector(
+          onTap: () => handleTapDownload!(gallery),
+          behavior: HitTestBehavior.opaque,
+          child: Icon(
+            Icons.download_outlined,
+            size: 20,
+            color: UIConfig.galleryCardTextColor(context),
+          ),
+        );
+      },
     );
   }
 
