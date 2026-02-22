@@ -5,6 +5,15 @@
             android:name="${applicationName}"
             android:requestLegacyExternalStorage="true"
             android:icon="@mipmap/launcher_icon">
+        
+        <!-- 禁用 Android 12L+ letterbox 兼容模式 -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+            android:value="false" />
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE"
+            android:value="true" />
+            
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
@@ -14,8 +23,10 @@
                 android:hardwareAccelerated="true"
                 android:requestLegacyExternalStorage="true"
                 android:windowSoftInputMode="adjustResize"
-                android:resizeableActivity="true"
-                android:screenOrientation="unspecified">
+                android:resizeableActivity="false"
+                android:screenOrientation="nosensor"
+                android:maxAspectRatio="3.0"
+                tools:ignore="DiscouragedApi,LockedOrientationActivity">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
