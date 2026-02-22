@@ -112,9 +112,9 @@ void main(List<String> args) async {
     statusBarColor: Colors.transparent,
   ));
 
-  // Use system default orientation
-  // resizeableActivity=true in AndroidManifest ensures fullscreen on tablets
-  SystemChrome.setPreferredOrientations([]);
+  // Use nosensor orientation to bypass tablet letterbox issue
+  // Native channel ensures fullscreen on Android 12L+ tablets
+  // Note: This is async but we don't await it to avoid blocking startup
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {

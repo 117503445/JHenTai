@@ -22,6 +22,7 @@ import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
+import 'package:jhentai/src/utils/screen_orientation_util.dart';
 import 'package:retry/retry.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -405,10 +406,10 @@ class ReadPageLogic extends GetxController {
       restoreDeviceOrientation();
     }
     if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      ScreenOrientationUtil.setLandscape();
     }
     if (readSetting.deviceDirection.value == DeviceDirection.portrait) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      ScreenOrientationUtil.setPortrait();
     }
   }
 
@@ -417,7 +418,8 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    SystemChrome.setPreferredOrientations([]);
+    // Use nosensor to bypass tablet letterbox issue
+    ScreenOrientationUtil.setNosensor();
   }
 
   void toggleMenu() {
