@@ -239,6 +239,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
+  /// 在 [context] 中叠加显示 [gallery] 的已读页数。
   Widget _buildReadProgressOverlay(BuildContext context, GalleryDownloadInfo gallery) {
     return GetBuilder<ReadProgressService>(
       id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',

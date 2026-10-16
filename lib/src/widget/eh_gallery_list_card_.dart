@@ -17,6 +17,7 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 import '../consts/locale_consts.dart';
 import '../utils/date_util.dart';
 import 'eh_image.dart';
+import 'eh_quick_download_button.dart';
 import 'eh_tag.dart';
 import 'eh_gallery_category_tag.dart';
 import '../service/read_progress_service.dart';
@@ -33,6 +34,9 @@ class EHGalleryListCard extends StatelessWidget {
   final CardContextMenuCallback? handleSecondaryTapCard;
   final CardCallback? handleTapDownload;
   final bool withTags;
+
+  /// 为放大的快捷下载按钮预留高度，避免挤压标题和标签。
+  double get _cardHeight => (withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags) + (handleTapDownload == null ? 0 : 28);
 
   const EHGalleryListCard({
     Key? key,
@@ -56,7 +60,7 @@ class EHGalleryListCard extends StatelessWidget {
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
-          height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
+          height: _cardHeight,
           child: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags ? buildFlatGalleryCard(context) : buildRoundGalleryCard(context),
         ),
       ),
@@ -123,7 +127,7 @@ class EHGalleryListCard extends StatelessWidget {
     return EHImage(
       galleryImage: gallery.cover,
       containerColor: UIConfig.galleryCardBackGroundColor(context),
-      containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
+      containerHeight: _cardHeight,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
       heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
       fit: BoxFit.fitWidth,
@@ -226,6 +230,7 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
+  /// 按 [context] 的卡片配色构建快捷下载，队列已有画廊时隐藏。
   Widget _buildQuickDownloadButton(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -234,14 +239,9 @@ class EHGalleryListCard extends StatelessWidget {
         if (isDownloading || downloaded) {
           return const SizedBox.shrink();
         }
-        return GestureDetector(
-          onTap: () => handleTapDownload!(gallery),
-          behavior: HitTestBehavior.opaque,
-          child: Icon(
-            Icons.download_outlined,
-            size: 20,
-            color: UIConfig.galleryCardTextColor(context),
-          ),
+        return EHQuickDownloadButton(
+          onPressed: () => handleTapDownload!(gallery),
+          color: UIConfig.galleryCardTextColor(context),
         );
       },
     );

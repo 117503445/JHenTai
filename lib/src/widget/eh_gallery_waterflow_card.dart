@@ -19,6 +19,7 @@ import '../model/gallery_tag.dart';
 import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
+import 'eh_quick_download_button.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
@@ -103,12 +104,12 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
-                if (handleTapDownload != null) _buildQuickDownloadButton(context).marginOnly(right: 2),
                 if (downloaded) _buildDownloadIcon().marginOnly(right: 2),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 2),
                 if (gallery.pageCount != null) _buildPageCount(),
               ],
             ),
+            if (handleTapDownload != null) Align(alignment: Alignment.centerRight, child: _buildQuickDownloadButton(context)),
           ],
         ).paddingOnly(top: 2, bottom: 2, left: 6, right: 6),
       ],
@@ -128,7 +129,6 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
-                if (handleTapDownload != null) _buildQuickDownloadButton(context),
                 if (downloaded) _buildDownloadIcon(),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
                 _buildCategory().marginOnly(left: 4, right: 4),
@@ -138,6 +138,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
             ),
             _buildTitle().marginOnly(top: 4, left: 2),
             if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
+            if (handleTapDownload != null) Align(alignment: Alignment.centerRight, child: _buildQuickDownloadButton(context)),
           ],
         ).paddingOnly(bottom: 6, left: 6, right: 6)
       ],
@@ -192,6 +193,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildDownloadIcon() => const Icon(Icons.download, size: 10);
 
+  /// 为 [context] 对应卡片构建快捷下载，已有下载时隐藏。
   Widget _buildQuickDownloadButton(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -200,10 +202,9 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
         if (isDownloading || downloaded) {
           return const SizedBox.shrink();
         }
-        return GestureDetector(
-          onTap: () => handleTapDownload!(gallery),
-          behavior: HitTestBehavior.opaque,
-          child: const Icon(Icons.download_outlined, size: 12),
+        return EHQuickDownloadButton(
+          onPressed: () => handleTapDownload!(gallery),
+          color: UIConfig.galleryCardTextColor(context),
         );
       },
     );
