@@ -102,14 +102,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Make tmp dir
-        run: mkdir /tmp/artifacts
+      - name: 创建产物目录
+        run: mkdir -p build/release-artifacts
       - name: Download all Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: /tmp/artifacts
+          path: build/release-artifacts
       - name: List all Artifacts
-        run: ls -R /tmp/artifacts
+        run: ls -R build/release-artifacts
       # 仅通过CI发布安装包。
       - name: Upload to release
         uses: ncipollo/release-action@v1
@@ -118,7 +118,7 @@ jobs:
           name: ${{ github.ref_type == 'tag' && github.ref_name || format('Nightly Build {0}', github.sha) }}
           allowUpdates: true
           bodyFile: ${{ github.ref_type == 'tag' && format('changelog/{0}.md', github.ref_name) || '' }}
-          artifacts: /tmp/artifacts/release-Android/*.apk
+          artifacts: build/release-artifacts/release-Android/*.apk
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           prerelease: ${{ github.ref_type != 'tag' }}
