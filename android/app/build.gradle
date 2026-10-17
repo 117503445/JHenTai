@@ -50,7 +50,8 @@ android {
         applicationId "top.jtmonster.jjhentai"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode flutterVersionCode.toInteger()
+        // 延续个人 fork 已安装版本的 2000 偏移，保证 2306 等旧版可以直接升级。
+        versionCode flutterVersionCode.toInteger() + 2000
         versionName flutterVersionName
     }
 
