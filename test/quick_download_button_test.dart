@@ -22,7 +22,8 @@ void main() {
     final rect = tester.getRect(button);
     expect(rect.width, greaterThanOrEqualTo(48));
     expect(rect.height, greaterThanOrEqualTo(48));
-    expect(tester.widget<Icon>(find.byIcon(Icons.download_outlined)).size, greaterThanOrEqualTo(24));
+    expect(tester.widget<Icon>(find.byIcon(Icons.download_rounded)).size,
+        greaterThanOrEqualTo(24));
     await tester.tapAt(rect.topLeft + const Offset(2, 2));
     await tester.pump();
     expect(downloads, 1);

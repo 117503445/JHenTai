@@ -95,6 +95,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           children: [
             _buildCover(context),
             Positioned(bottom: 4, right: 4, child: _buildLanguageChip()),
+            if (handleTapDownload != null) Positioned(top: 4, right: 4, child: _buildQuickDownloadButton(context)),
           ],
         ),
         Column(
@@ -109,7 +110,6 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
                 if (gallery.pageCount != null) _buildPageCount(),
               ],
             ),
-            if (handleTapDownload != null) Align(alignment: Alignment.centerRight, child: _buildQuickDownloadButton(context)),
           ],
         ).paddingOnly(top: 2, bottom: 2, left: 6, right: 6),
       ],
@@ -120,7 +120,12 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCover(context),
+        Stack(
+          children: [
+            _buildCover(context),
+            if (handleTapDownload != null) Positioned(top: 4, right: 4, child: _buildQuickDownloadButton(context)),
+          ],
+        ),
         const SizedBox(height: 6),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +143,6 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
             ),
             _buildTitle().marginOnly(top: 4, left: 2),
             if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
-            if (handleTapDownload != null) Align(alignment: Alignment.centerRight, child: _buildQuickDownloadButton(context)),
           ],
         ).paddingOnly(bottom: 6, left: 6, right: 6)
       ],
@@ -204,7 +208,6 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
         }
         return EHQuickDownloadButton(
           onPressed: () => handleTapDownload!(gallery),
-          color: UIConfig.galleryCardTextColor(context),
         );
       },
     );

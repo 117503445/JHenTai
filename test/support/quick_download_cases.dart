@@ -18,6 +18,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_gallery_list_card_.dart';
 import 'package:jhentai/src/widget/eh_gallery_waterflow_card.dart';
 import 'package:jhentai/src/widget/eh_quick_download_button.dart';
+import 'package:jhentai/src/widget/eh_image.dart';
 
 /// 使用真实卡片和快捷下载逻辑验证 [testWidgets] 提供的运行环境。
 void runQuickDownloadCases() {
@@ -77,6 +78,14 @@ void runQuickDownloadCases() {
       final bounds = tester.getRect(button);
       expect(bounds.width, greaterThanOrEqualTo(48));
       expect(bounds.height, greaterThanOrEqualTo(48));
+      // 瀑布流入口贴合封面，不能重新占用卡片底部的一整行。
+      if (mode != ListMode.listWithoutTags) {
+        final cover = tester.getRect(find.byType(EHImage));
+        expect(cover.contains(bounds.topLeft), isTrue);
+        expect(cover.contains(bounds.bottomRight), isTrue);
+        expect(bounds.right, closeTo(cover.right - 4, 0.1));
+        expect(bounds.top, closeTo(cover.top + 4, 0.1));
+      }
       await tester.tapAt(bounds.topLeft + const Offset(2, 2));
       await tester.pump();
       expect(details, 0);

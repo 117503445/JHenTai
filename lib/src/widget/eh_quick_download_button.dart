@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 /// 画廊卡片共用的快捷下载入口。
 class EHQuickDownloadButton extends StatelessWidget {
-  /// [onPressed] 负责添加下载，[color] 沿用卡片文字颜色。
+  /// [onPressed] 负责添加下载，[color] 可覆盖主题图标颜色。
   const EHQuickDownloadButton({super.key, required this.onPressed, this.color});
 
   /// 点击下载时执行的动作。
@@ -15,15 +15,31 @@ class EHQuickDownloadButton extends StatelessWidget {
   /// 根据 [context] 构建按钮。
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return SizedBox.square(
       dimension: 48,
-      child: IconButton(
-        tooltip: 'download'.tr,
-        onPressed: onPressed,
-        padding: const EdgeInsets.all(12),
-        constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-        visualDensity: VisualDensity.standard,
-        icon: Icon(Icons.download_outlined, size: 24, color: color),
+      child: Material(
+        color: Colors.transparent,
+        child: IconButton(
+          tooltip: 'download'.tr,
+          onPressed: onPressed,
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+          visualDensity: VisualDensity.standard,
+          iconSize: 40,
+          icon: Ink(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHigh.withValues(alpha: 0.96),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: colors.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Icon(Icons.download_rounded,
+                size: 24, color: color ?? colors.primary),
+          ),
+        ),
       ),
     );
   }

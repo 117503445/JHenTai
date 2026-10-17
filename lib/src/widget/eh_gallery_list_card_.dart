@@ -241,7 +241,6 @@ class EHGalleryListCard extends StatelessWidget {
         }
         return EHQuickDownloadButton(
           onPressed: () => handleTapDownload!(gallery),
-          color: UIConfig.galleryCardTextColor(context),
         );
       },
     );
