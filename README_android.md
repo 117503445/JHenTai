@@ -8,6 +8,8 @@
 
 CodeClaw 当前环境可先用 `nix shell nixpkgs#go nixpkgs#podman` 进入工具环境。
 
+Y9000P NixOS WSL 为后续编译与设备验证环境，源码位于 `/home/nixos/projects/jhentai/repos/JHenTai`，运行目录为 `/home/nixos/projects/jhentai/data/android`。在该源码目录使用 `nixos` 用户运行下述命令时，附加 `-state /home/nixos/projects/jhentai/data/android`。首次环境配置由 NixOP 的 `assets/nodes/y9000p-nixos/jhentai-dev.json` 管理。CodeClaw 保留维护记录，源码变更继续推送个人 fork；两处源码通过 Git 同步。
+
 已有本任务容器运行时，直接执行 `test`、`apk` 或 `verify`；仅在首次创建时执行镜像构建和容器创建步骤。
 
 ```console
@@ -19,7 +21,7 @@ go run tools/android/main.go -mode emulator-image
 go run tools/android/main.go -mode emulator
 ```
 
-`emulator` 在前台运行，另一个终端执行：
+`emulator` 在容器内后台运行，启动后执行：
 
 ```console
 go run tools/android/main.go -mode verify

@@ -62,7 +62,7 @@ func main() {
 		if _, err := os.Stat("/dev/kvm"); err == nil {
 			accel = "on"
 		}
-		podman(nil, "exec", emulator, "emulator", "-avd", "codeclaw", "-port", "5580", "-no-window", "-no-audio", "-no-boot-anim", "-no-snapshot", "-gpu", "swiftshader_indirect", "-accel", accel, "-memory", "2048", "-cores", "2")
+		podman(nil, "exec", "-d", emulator, "emulator", "-avd", "codeclaw", "-port", "5580", "-no-window", "-no-audio", "-no-boot-anim", "-no-snapshot", "-gpu", "swiftshader_indirect", "-accel", accel, "-memory", "2048", "-cores", "2")
 	case "verify":
 		buildExec("adb", "-P", "5039", "connect", "127.0.0.1:5581")
 		deadline := time.Now().Add(15 * time.Minute)
